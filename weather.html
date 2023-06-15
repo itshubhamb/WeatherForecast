@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Weather Forecast</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    form {
+      margin-top: 30px;
+    }
+
+    input[type="text"] {
+      padding: 8px;
+      font-size: 16px;
+      border-radius: 4px;
+    }
+
+    input[type="submit"] {
+      padding: 8px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      border: none;
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #weather-info {
+      margin-top: 50px;
+    }
+
+    p {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Weather Forecast</h1>
+  
+  <form id="weather-form">
+    <input type="text" id="city-input" placeholder="Enter city name" required>
+    <input type="submit" value="Get Forecast">
+  </form>
+
+  <div id="weather-info"></div>
+
+  <script>
+    const form = document.getElementById('weather-form');
+    const cityInput = document.getElementById('city-input');
+    const weatherInfoElement = document.getElementById('weather-info');
+
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const city = cityInput.value;
+
+      // API URL for weather forecast
+      const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=your_api_key`;
+      // Replace "your_api_key" with your OpenWeatherMap API key
+
+      fetch(apiUrl)
+        .then(response => response.text())
+        .then(data => {
+          // Extract the required weather information from the response text
+          const temperature = extractValue(data, '"temp":');
+          const weather = extractValue(data, '"main":"');
+          const description = extractValue(data, '"description":"');
+
+          // Display the weather forecast information on the web page
+          weatherInfoElement.innerHTML = `
+            <p>Temperature: ${temperature} K</p>
+            <p>Weather: ${weather}</p>
+            <p>Description: ${description}</p>
+          `;
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          weatherInfoElement.innerHTML = 'An error occurred while fetching the weather forecast.';
+        });
+
+      cityInput.value = '';
+    });
+
+    // Helper function to extract the value after a specific key in the response text
+    function extractValue(responseText, key) {
+      const startIndex = responseText.indexOf(key) + key.length;
+      const endIndex = responseText.indexOf(',', startIndex);
+      return responseText.substring(startIndex, endIndex).trim();
+    }
+  </script>
+</body>
+</html>
